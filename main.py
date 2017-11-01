@@ -25,10 +25,10 @@ if __name__ == '__main__':
         print("From: " + email.utils.parseaddr(message.get('from'))[1])
         print("To: " + email.utils.parseaddr(message.get('to'))[1])
         print("Subject: " + subject)
-        for part in message.walk(): 
-            fileName = part.get_filename()  
-            contentType = part.get_content_type()  
-            mycode=part.get_content_charset();    
+        for part in message.walk():
+            fileName = part.get_filename()
+            contentType = part.get_content_type()
+            mycode = part.get_content_charset()
             if fileName:
                 data = part.get_payload(decode=True)
                 h = email.Header.Header(fileName)
