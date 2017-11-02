@@ -3,9 +3,11 @@ import pickle
 import base64
 import quopri
 import xlrd
+import xlwt
 
 keyword = "仙多山"
-cell = "I4"
+row = 3
+col = 8
 
 file = open('tmp.txt', 'rb')
 messages = pickle.load(file)
@@ -27,7 +29,23 @@ def decode_message(message):
     return ret
 
 
+def to_excel(ret_list, filename):
+    ''' 生成EXCEL文件 '''
+    print("\n创建EXCEL文件......")
+    try:
+        excel = xlwt.Workbook()
+        sheet = excel.add_sheet("my_sheet")
+        for row in range(0, len(ret_list)):
+            for col in range(0, len(ret_list[row])):
+                sheet.write(row, col, ret_list[row][col])
+        excel.save(filename + ".xls")
+    except:
+        print("创建失败:" + sys.exc_info()[0])
+    print("创建完成")
+
+
 if __name__ == '__main__':
+    ret = []
     for message in messages[::-1]:
         print("-----------------------------------------")
         subject = message.get('Subject')
@@ -44,7 +62,6 @@ if __name__ == '__main__':
                 if fileName:
                     fileName = decode_message(fileName)
                     if len(fileName.split('.')) > 1 and fileName.split('.')[1].upper() in ['XLS', 'XLSX']:
-                        print(fileName)
                         data = part.get_payload(decode=True)
                         fEx = open("tmp.xlsx", 'wb')
                         fEx.write(data)
@@ -52,5 +69,7 @@ if __name__ == '__main__':
 
                         xl = xlrd.open_workbook("tmp.xlsx")
                         sheet = xl.sheet_by_index(0)
-                        net = sheet.cell(8,3).value
-                        print(net)
+                        net = sheet.cell(3, 8).value
+
+                        ret.append([fileName, net])
+    to_excel(ret, 'net')
