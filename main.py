@@ -16,7 +16,7 @@ if __name__ == '__main__':
     print(pop.stat())
 
     messages = [pop.retr(i) for i in range(1, len(pop.list()[1]) + 1)]
-    messages = [b"\r\n".join(mssg[1]) for mssg in messages]
+    messages = [b"\n".join(mssg[1]) for mssg in messages]
     # messages = [parser.BytesParser().parsebytes(mssg) for mssg in messages]
     messages = [email.message_from_bytes(mssg) for mssg in messages]
 
