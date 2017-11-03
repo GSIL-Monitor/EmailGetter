@@ -4,6 +4,7 @@ import email
 # import pickle
 import poplib
 import quopri
+import time
 
 import xlrd
 import xlwt
@@ -14,6 +15,7 @@ pwd = "fed68318067"
 keyword = "仙多山"
 row = 4
 col = 9
+t1, t2, t3 = (0, 0, 0)
 
 
 def decode_message(message):
@@ -54,6 +56,8 @@ if __name__ == '__main__':
     row = input("输入行号：")
     col = input("输入列号：")
 
+    print('正在登录。。。')
+    t1 = time.time()
     try:
         pop = poplib.POP3_SSL(host)
         pop.user(user)
@@ -62,17 +66,21 @@ if __name__ == '__main__':
         print(e)
         exit
 
-    print('正在登录。。。')
-    print('邮件数: %d, 大小: %d bytes' % pop.stat())
-    print('正在获取邮件。。。')
+    # print('邮件数: %d, 大小: %d bytes' % pop.stat())
+    num = pop.stat()[0]
+    top = 20 if num > 20 else num
 
-    length = len(pop.list()[1]) + 1
-    messages = [pop.retr(i) for i in range(1, length)]
+    t2 = time.time()
+    print('耗时：%.3f 秒' % (t2 - t1))
+
+    print('正在获取邮件。。。')
+    messages = [pop.retr(i) for i in range(num, num - top, -1)]
     messages = [b"\n".join(mssg[1]) for mssg in messages]
     # messages = [parser.BytesParser().parsebytes(mssg) for mssg in messages]
     messages = [email.message_from_bytes(mssg) for mssg in messages]
 
-    print('已获取邮件')
+    t3 = time.time()
+    print('耗时：%.3f 秒' % (t3 - t2))
 
     pop.quit()
 
@@ -82,7 +90,7 @@ if __name__ == '__main__':
     # messages = pickle.load(file)
 
     ret = []
-    for message in messages[::-1]:
+    for message in messages:
         subject = message.get('Subject')
         subject = decode_message(subject)
         if keyword in subject:
@@ -96,7 +104,8 @@ if __name__ == '__main__':
                 code = part.get_content_charset()
                 if fileName:
                     fileName = decode_message(fileName)
-                    ext = fileName.split('.')[1] if len(fileName.split('.')) > 1 else ''
+                    ext = fileName.split('.')[1] if len(
+                        fileName.split('.')) > 1 else ''
                     if ext.upper() in ['XLS', 'XLSX']:
                         data = part.get_payload(decode=True)
                         fEx = open("tmp." + ext, 'wb')
