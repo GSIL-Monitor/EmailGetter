@@ -62,13 +62,12 @@ if __name__ == '__main__':
         pop = poplib.POP3_SSL(host)
         pop.user(user)
         pop.pass_(pwd)
+        # print('邮件数: %d, 大小: %d bytes' % pop.stat())
+        num = pop.stat()[0]
+        top = 20 if num > 20 else num
     except poplib.error_proto as e:
         print(e)
         exit
-
-    # print('邮件数: %d, 大小: %d bytes' % pop.stat())
-    num = pop.stat()[0]
-    top = 20 if num > 20 else num
 
     t2 = time.time()
     print('耗时：%.3f 秒' % (t2 - t1))
@@ -92,7 +91,9 @@ if __name__ == '__main__':
     ret = []
     for message in messages:
         subject = message.get('Subject')
-        subject = decode_message(subject)
+        h = email.header.decode_header(subject)
+        print(h)
+        # subject = decode_message(subject)
         if keyword in subject:
             # print(subject)
             # print("Date: " + message["Date"])
