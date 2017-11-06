@@ -1,10 +1,11 @@
 import base64
 import email
 # from email import parser
-# import pickle
+import pickle
 import poplib
 import quopri
 import time
+import sys
 
 import xlrd
 import xlwt
@@ -67,7 +68,7 @@ if __name__ == '__main__':
         top = 20 if num > 20 else num
     except poplib.error_proto as e:
         print(e)
-        exit
+        sys.exit(0)
 
     t2 = time.time()
     print('耗时：%.3f 秒' % (t2 - t1))
@@ -91,9 +92,11 @@ if __name__ == '__main__':
     ret = []
     for message in messages:
         subject = message.get('Subject')
-        h = email.header.decode_header(subject)
-        print(h)
-        # subject = decode_message(subject)
+        if type(subject) == str:
+            subject = decode_message(subject)
+        else:
+            h = email.header.decode_header(subject)
+            subject = h[0][0].decode(h[0][1]) if h[0][1].upper() in ['UTF-8','GBK','GB2312'] else h[0][0].decode('gbk')
         if keyword in subject:
             # print(subject)
             # print("Date: " + message["Date"])
@@ -107,7 +110,7 @@ if __name__ == '__main__':
                     fileName = decode_message(fileName)
                     ext = fileName.split('.')[1] if len(
                         fileName.split('.')) > 1 else ''
-                    if ext.upper() in ['XLS', 'XLSX']:
+                    if ext.upper() in ['XLS', 'XLSX'] and '估值' in fileName:
                         data = part.get_payload(decode=True)
                         fEx = open("tmp." + ext, 'wb')
                         fEx.write(data)
