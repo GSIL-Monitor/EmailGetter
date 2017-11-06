@@ -16,6 +16,7 @@ pwd = "fed68318067"
 keyword = "仙多山"
 row = 4
 col = 9
+top = 20
 t1, t2, t3 = (0, 0, 0)
 
 
@@ -53,9 +54,6 @@ def to_excel(ret_list, filename):
 if __name__ == '__main__':
     user = input("输入邮箱地址：")
     pwd = input("输入邮箱密码：")
-    keyword = input("输入邮件标题关键字：")
-    row = input("输入行号：")
-    col = input("输入列号：")
 
     print('正在登录。。。')
     t1 = time.time()
@@ -65,7 +63,6 @@ if __name__ == '__main__':
         pop.pass_(pwd)
         # print('邮件数: %d, 大小: %d bytes' % pop.stat())
         num = pop.stat()[0]
-        top = 20 if num > 20 else num
     except poplib.error_proto as e:
         print(e)
         sys.exit(0)
@@ -73,7 +70,16 @@ if __name__ == '__main__':
     t2 = time.time()
     print('耗时：%.3f 秒' % (t2 - t1))
 
+    try:
+        keyword = input("输入邮件标题关键字：")
+        top = int(input("输入获取邮件数："))
+        row = int(input("输入行号："))
+        col = int(input("输入列号："))
+    except ValueError as e:
+        print('输入数据类型错误')
+
     print('正在获取邮件。。。')
+    top = top if num > top else num
     messages = [pop.retr(i) for i in range(num, num - top, -1)]
     messages = [b"\n".join(mssg[1]) for mssg in messages]
     # messages = [parser.BytesParser().parsebytes(mssg) for mssg in messages]
@@ -118,7 +124,7 @@ if __name__ == '__main__':
 
                         xl = xlrd.open_workbook("tmp." + ext)
                         sheet = xl.sheet_by_index(0)
-                        net = sheet.cell(int(row) - 1, int(col) - 1).value
+                        net = sheet.cell(row - 1, col - 1).value
 
                         ret.append([fileName, net])
     to_excel(ret, 'net')
