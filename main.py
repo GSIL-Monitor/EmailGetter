@@ -27,12 +27,15 @@ def decode_message(message):
             charset = s.split('?')[1]
             mode = s.split('?')[2]
             code = s.split('?')[3]
-            if mode.upper() == 'B':
-                ret += str(base64.decodebytes(
-                    code.encode(encoding=charset)), encoding=charset)
-            else:
-                ret += str(quopri.decodestring(
-                    code.encode(encoding=charset)), encoding=charset)
+            try:
+                if mode.upper() == 'B':
+                    ret += str(base64.decodebytes(
+                        code.encode(encoding=charset)), encoding=charset)
+                else:
+                    ret += str(quopri.decodestring(
+                        code.encode(encoding=charset)), encoding=charset)
+            except UnicodeDecodeError as e:
+                print(message)
     return ret
 
 
