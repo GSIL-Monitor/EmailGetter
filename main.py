@@ -76,8 +76,8 @@ if __name__ == '__main__':
     try:
         keyword = input("输入邮件标题关键字：")
         top = int(input("输入获取邮件数："))
-        row = int(input("输入行号："))
-        col = int(input("输入列号："))
+        row = input("输入行号：")
+        col = input("输入列号：")
     except ValueError as e:
         print('输入数据类型错误')
 
@@ -127,7 +127,12 @@ if __name__ == '__main__':
 
                         xl = xlrd.open_workbook("tmp." + ext)
                         sheet = xl.sheet_by_index(0)
-                        net = sheet.cell(row - 1, col - 1).value
-
-                        ret.append([fileName, net])
+                        rows = row.split(',')
+                        cols = col.split(',')
+                        for i in range(len(rows)):
+                            try:
+                                net = sheet.cell(int(rows[i]) - 1, int(cols[i]) - 1).value
+                            except IndexError as e:
+                                net = None
+                            ret.append([fileName, net])
     to_excel(ret, 'net')
